@@ -21,7 +21,6 @@ namespace SampleApp.Database
 
         public decimal UnitPrice { get; set; }
 
-        //public int? AlbumId { get; set; }
         public Album Album { get; set; }
     }
 }

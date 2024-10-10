@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SampleApp.Config;
 using SampleApp.Database;
 using SampleApp.Models;

@@ -1,0 +1,53 @@
+﻿@model SampleApp.Models.TrackSearchModel
+
+@{
+    ViewData["Title"] = "Track Search";
+}
+
+<h1>Track Search</h1>
+
+@using (Html.BeginForm("Search", "Track", FormMethod.Post, new { @id = "formID"}))
+{        
+    <div class="form-group row my-1">
+        @Html.LabelFor(m => m.TrackName, new { @class = "col-sm-2 col-md-1 col-form-label"})
+        <div class="col-sm-10 col-md-4">
+            @Html.TextBoxFor(m => m.TrackName, new { @class = "form-control" })
+            <div class="invalid-feedback d-block">
+                @Html.ValidationMessageFor(m => m.TrackName)
+            </div>
+        </div>
+    </div>
+    <div class="form-group row my-1">
+        @Html.LabelFor(m => m.ArtistName, new { @class = "col-sm-2 col-md-1 col-form-label" })
+        <div class="col-sm-10 col-md-4">
+            @Html.TextBoxFor(m => m.ArtistName, new { @class = "form-control" })
+            <div class="invalid-feedback d-block">
+                @Html.ValidationMessageFor(m => m.ArtistName)
+            </div>
+        </div>
+    </div>
+    <input type="submit" value="Search" class="btn btn-primary" />
+}
+
+@if (Model.Results != null)
+{
+    <div class="my-5">
+        <h2>Search Results</h2>
+
+        <div class="container">
+        @foreach (TrackSearchResultModel CurrentResult in Model.Results)
+        {
+                <div class="row">
+                    <div class="col">@CurrentResult.TrackName / <a href="#">@CurrentResult.AlbumName</a></div>
+                </div>
+        }
+        </div>
+    </div>
+}
+
+
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
