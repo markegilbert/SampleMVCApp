@@ -24,7 +24,7 @@ namespace SampleApp
             _LogAs.Info("Program starting");
 
 
-            // Load up the GeniusAPISettings so they can be injected as IOptions<GeniusAPISettings>.
+            // Load up the GeniusAPISettings so they can be injected as IOptions<GeniusAPISettings> objects.
             builder.Services.AddOptions<GeniusAPISettings>()
                 .BindConfiguration(GeniusAPISettings.SettingsName)
                 .ValidateDataAnnotations()
@@ -37,23 +37,25 @@ namespace SampleApp
             builder.Logging.AddNLog();
 
             builder.Services.AddControllersWithViews();
+
+            // Configure GlobalExceptionHandler
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
 
-            // Inject DbContextOptions objects for each database
+            // Inject DbContext objects for each database
             builder.Services.AddDbContext<ChinookDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("ChinookDB")));
             
 
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
+            // Configure GlobalExceptionHandler
             app.UseExceptionHandler();
 
             app.UseHttpsRedirection();

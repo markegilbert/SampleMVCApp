@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
 
 namespace SampleApp.ErrorHandling
 {
 
     // Adapted from Source: https://www.milanjovanovic.tech/blog/global-error-handling-in-aspnetcore-8
+    // This requires these two lines be added to Program.cs:
+    //      builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    //      builder.Services.AddProblemDetails();
+    // and
+    //      app.UseExceptionHandler();
     internal sealed class GlobalExceptionHandler : IExceptionHandler
     {
         private readonly ILogger<GlobalExceptionHandler> _logger;
