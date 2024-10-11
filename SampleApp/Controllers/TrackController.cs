@@ -8,14 +8,12 @@ namespace SampleApp.Controllers
     public class TrackController : Controller
     {
         private readonly ILogger<HomeController> _Logger;
-        private readonly SampleAppConfig _Config;
-        private readonly SampleAppContext _Context;
+        private readonly ChinookDbContext _Context;
 
-        public TrackController(ILogger<HomeController> Logger, SampleAppConfig Config, SampleAppContext Context)
+        public TrackController(ILogger<HomeController> Logger, ChinookDbContext Context)
         {
             // TODO: Validate these
             _Logger = Logger;
-            _Config = Config;
             _Context = Context;
         }
 

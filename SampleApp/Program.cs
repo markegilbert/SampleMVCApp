@@ -1,4 +1,6 @@
 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NLog.Extensions.Logging;
 using SampleApp.Config;
 using SampleApp.Database;
@@ -9,7 +11,6 @@ namespace SampleApp
     public class Program
     {
         private static NLog.ILogger? _LogAs;
-        private static SampleAppConfig _Config;
 
 
         public static void Main(string[] args)
@@ -22,20 +23,27 @@ namespace SampleApp
             _LogAs.Info("************************");
             _LogAs.Info("Program starting");
 
-            _Config = LoadConfig();
-            _LogAs.Info("Config loaded");
+
+            // Load up the GeniusAPISettings so they can be injected as IOptions<GeniusAPISettings>.
+            builder.Services.AddOptions<GeniusAPISettings>()
+                .BindConfiguration(GeniusAPISettings.SettingsName)
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+            _LogAs.Info("GeniusAPISettings loaded");
 
 
             // Add services to the container.
             builder.Logging.ClearProviders();
             builder.Logging.AddNLog();
 
-            builder.Services.AddTransient<SampleAppConfig>((x) => _Config);
-            builder.Services.AddTransient<SampleAppContext>((x) => LoadDbContext(_Config));
             builder.Services.AddControllersWithViews();
-
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
+
+            // Inject DbContextOptions objects for each database
+            builder.Services.AddDbContext<ChinookDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("ChinookDB")));
+            
+
 
             var app = builder.Build();
 
@@ -62,25 +70,5 @@ namespace SampleApp
             app.Run();
         }
 
-
-        private static SampleAppConfig LoadConfig()
-        {
-            SampleAppConfig NewConfig;
-
-            IConfiguration config = new ConfigurationBuilder()
-             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-             .Build();
-
-            NewConfig = new SampleAppConfig();
-            config.Bind(NewConfig);
-
-            return NewConfig;
-        }
-
-        private static SampleAppContext LoadDbContext(SampleAppConfig Config)
-        {
-            return new SampleAppContext(Config);
-        }
     }
 }

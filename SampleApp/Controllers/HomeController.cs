@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using SampleApp.Config;
 using SampleApp.Database;
 using SampleApp.Models;
@@ -9,14 +10,13 @@ namespace SampleApp.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _Logger;
-        private readonly SampleAppConfig _Config;
-        private readonly SampleAppContext _Context;
+        private readonly ChinookDbContext _Context;
 
-        public HomeController(ILogger<HomeController> Logger, SampleAppConfig Config, SampleAppContext Context)
+        public HomeController(ILogger<HomeController> Logger, IOptions<GeniusAPISettings> Config, ChinookDbContext Context)
         {
             // TODO: Validate these
             _Logger = Logger;
-            _Config = Config;
+            //_Config = Config;
             _Context = Context;
 
             // TODO: Remove these when done testing

@@ -1,26 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SampleApp.Config;
-using System.Reflection.Metadata;
 
 namespace SampleApp.Database
 {
-    public class SampleAppContext : DbContext
+    public sealed class ChinookDbContext : DbContext
     {
-        private String _ConnectionString;
-
         public DbSet<Album> Albums { get; set; }
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Track> Tracks { get; set; }
 
-        public SampleAppContext(SampleAppConfig Config)
-        {
-            // TODO: Validate this
-            this._ConnectionString = Config.ConnectionStrings.Primary;
-        }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite(this._ConnectionString);
-
+        public ChinookDbContext(DbContextOptions<ChinookDbContext> options) : base(options) { }
 
 
         public ICollection<Artist> GetAllArtists()
