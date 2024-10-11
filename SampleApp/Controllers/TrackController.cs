@@ -26,6 +26,7 @@ namespace SampleApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken()]
         public async Task<IActionResult> Search(TrackSearchModel SearchCriteria)
         {
             GeniusSearchResponse SearchResponse;

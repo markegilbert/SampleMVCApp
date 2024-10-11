@@ -8,6 +8,7 @@
 
 @using (Html.BeginForm("Search", "Track", FormMethod.Post, new { @id = "formID"}))
 {        
+    @Html.AntiForgeryToken()
     <div class="form-group row my-1">
         @Html.LabelFor(m => m.TrackName, new { @class = "col-sm-2 col-md-1 col-form-label"})
         <div class="col-sm-10 col-md-4">
