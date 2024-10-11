@@ -2,6 +2,7 @@
 
 namespace SampleApp.Database
 {
+    // Pattern Source: https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/
     public sealed class ChinookDbContext : DbContext
     {
         public DbSet<Album> Albums { get; set; }

@@ -6,7 +6,7 @@ namespace SampleApp.Models
     {
         public int TrackId { get; set; }
         public String TrackName { get; set; } = "";
-        public String AlbumName { get; set; } = "";
+        public String ArtistName { get; set; } = "";
         public String? AlbumArtURL { get; set; }
     }
 }

@@ -1,10 +1,12 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
 using SampleApp.Config;
 using SampleApp.Database;
 using SampleApp.ErrorHandling;
+using SampleApp.Services;
 
 namespace SampleApp
 {
@@ -44,7 +46,17 @@ namespace SampleApp
 
             // Inject DbContext objects for each database
             builder.Services.AddDbContext<ChinookDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("ChinookDB")));
-            
+
+
+            // This registers your service class as a transient service with DI.  That means
+            // each time it's injected you'll get back a new instance of the class.
+            builder.Services.AddHttpClient<GeniusService>((serviceProvider, httpClient) =>
+            {
+                GeniusAPISettings ServiceSettings = serviceProvider.GetRequiredService<IOptions<GeniusAPISettings>>().Value;
+
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {ServiceSettings.ClientAccessToken}");
+                httpClient.BaseAddress = new Uri("https://api.genius.com");
+            });
 
 
             var app = builder.Build();
