@@ -6,11 +6,13 @@ namespace SampleApp.Models
     public class TrackSearchModel
     {
         [DisplayName("Track")]
-        [Required(ErrorMessage = "Please specify a track")]
+        // TODO: Both of these don't have to be specified; only one or the other
+        //[Required(ErrorMessage = "Please specify a track")]
         public String? TrackName { get; set; }
 
         [DisplayName("Artist")]
-        [Required(ErrorMessage = "Please specify an artist")]
+        // TODO: Both of these don't have to be specified; only one or the other
+        //[Required(ErrorMessage = "Please specify an artist")]
         public String? ArtistName { get; set; }
 
         public List<TrackSearchResultModel>? Results { get; set; }

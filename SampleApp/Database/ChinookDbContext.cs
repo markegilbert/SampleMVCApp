@@ -13,17 +13,51 @@ namespace SampleApp.Database
         public ChinookDbContext(DbContextOptions<ChinookDbContext> options) : base(options) { }
 
 
-        public ICollection<Artist> GetAllArtists()
+        //public ICollection<Artist> GetAllArtists()
+        //{
+        //    return this.Artists.OrderBy(a => a.Name).ToList();
+        //}
+        //public ICollection<Album> GetAllAlbums()
+        //{
+        //    return this.Albums.Include(a => a.Tracks).ToList();
+        //}
+        //public ICollection<Track> GetAllTracks()
+        //{
+        //    return this.Tracks.ToList();
+        //}
+
+
+        public ICollection<Track> FindTrackByNameAndOrArtist(String TrackName, String ArtistName)
         {
-            return this.Artists.OrderBy(a => a.Name).ToList();
-        }
-        public ICollection<Album> GetAllAlbums()
-        {
-            return this.Albums.Include(a => a.Tracks).ToList();
-        }
-        public ICollection<Track> GetAllTracks()
-        {
-            return this.Tracks.ToList();
+            // TODO: Normalize the parameters
+            // TODO: Is there a better way to write this?
+
+            if (!String.IsNullOrEmpty(TrackName) && !String.IsNullOrEmpty(ArtistName)) 
+            {
+                // TODO: Handle that the Composer may be null
+                return this.Tracks.Where(t => t.Name.ToLower().Contains(TrackName.ToLower())
+                                        && t.Composer.ToLower().Contains(ArtistName.ToLower()))
+                                  .ToList();
+            }
+
+
+            if (!String.IsNullOrEmpty(TrackName))
+            {
+                return this.Tracks.Where(t => t.Name.ToLower().Contains(TrackName.ToLower()))
+                                  .ToList();
+            }
+
+
+            if (!String.IsNullOrEmpty(ArtistName))
+            {
+                // TODO: Handle that the Composer may be null
+                return this.Tracks.Where(t => t.Composer.ToLower().Contains(ArtistName.ToLower()))
+                                  .ToList();
+            }
+
+
+            // Simply return an empty list if no criteria were specified
+            return new List<Track>();
         }
     }
 }

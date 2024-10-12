@@ -39,7 +39,8 @@
         @foreach (TrackSearchResultModel CurrentResult in Model.Results)
         {
                 <div class="row">
-                    <div class="col">@CurrentResult.TrackName / <a href="@CurrentResult.AlbumArtURL" target="_blank">@CurrentResult.ArtistName</a></div>
+                    <div class="col">@CurrentResult.TrackName / @CurrentResult.ArtistName</div>
+                    <div class="col">@Html.ActionLink("Album Art", "AlbumArt", "Track", new { TrackName = @CurrentResult.TrackName, ArtistName = @CurrentResult.ArtistName })</div>
                 </div>
         }
         </div>

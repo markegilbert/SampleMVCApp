@@ -29,26 +29,46 @@ namespace SampleApp.Controllers
         [ValidateAntiForgeryToken()]
         public async Task<IActionResult> Search(TrackSearchModel SearchCriteria)
         {
-            GeniusSearchResponse SearchResponse;
+            ICollection<Track> SearchResults;
 
-            if (!ModelState.IsValid)
-            {
-                return View(SearchCriteria);
-            }
+            // TODO: At least one criteria has to be specified
 
-            SearchResponse = await _Service.SearchByTrackAndArtistAsync(SearchCriteria.TrackName, SearchCriteria.ArtistName);
+            //if (!ModelState.IsValid)
+            //{
+            //    return View(SearchCriteria);
+            //}
 
+
+
+
+
+            SearchResults = this._Context.FindTrackByNameAndOrArtist(SearchCriteria.TrackName, SearchCriteria.ArtistName);
             SearchCriteria.Results = new List<TrackSearchResultModel>();
-            SearchCriteria.Results.AddRange((from t in SearchResponse.ResponseData.Hits 
-                                             select new TrackSearchResultModel() 
-                                             { 
-                                                 TrackName = t.Result.Title, 
-                                                 TrackId = t.Result.TrackID, 
-                                                 ArtistName = t.Result.Artist,
-                                                 AlbumArtURL = t.Result.HeaderImageThumbnailURL
-                                             }).ToList());
+            SearchCriteria.Results.AddRange((from t in SearchResults
+                                             select new TrackSearchResultModel()
+                                             {
+                                                 TrackName = t.Name,
+                                                 TrackId = t.TrackId,
+                                                 ArtistName = t.Composer
+                                             }));
 
             return View(SearchCriteria);
+        }
+
+        
+        public async Task<IActionResult> AlbumArt(String TrackName, String ArtistName)
+        {
+            GeniusSearchResponse SearchResponse;
+
+            SearchResponse = await _Service.SearchByTrackAndArtistAsync(TrackName, ArtistName);
+
+            if (SearchResponse?.ResponseData?.Hits?.Count() > 0)
+            {
+                return View("AlbumArt", SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL);
+            }
+
+            // TODO: Return the view with a default image
+            return new OkResult();
         }
     }
 }

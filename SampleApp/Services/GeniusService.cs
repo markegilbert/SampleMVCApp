@@ -21,5 +21,6 @@ namespace SampleApp.Services
 
             return await _Client.GetFromJsonAsync<GeniusSearchResponse>($"search?q={QueryString}");
         }
+
     }
 }
