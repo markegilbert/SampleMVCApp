@@ -61,14 +61,15 @@ namespace SampleApp.Controllers
             GeniusSearchResponse SearchResponse;
 
             SearchResponse = await _Service.SearchByTrackAndArtistAsync(TrackName, ArtistName);
-
             if (SearchResponse?.ResponseData?.Hits?.Count() > 0)
             {
-                return View("AlbumArt", SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL);
+                return Content($"<img src=\"{SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL}\">", "text/html; charset=UTF-8");
             }
-
-            // TODO: Return the view with a default image
-            return new OkResult();
+            else
+            {
+                // TODO: Return the view with a default image
+                return new OkResult();
+            }
         }
     }
 }

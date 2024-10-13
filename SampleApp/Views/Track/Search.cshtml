@@ -1,7 +1,13 @@
-﻿@model SampleApp.Models.TrackSearchModel
+﻿@using Microsoft.AspNetCore.Mvc.Routing
+@model SampleApp.Models.TrackSearchModel
 
 @{
     ViewData["Title"] = "Track Search";
+}
+
+@section StyleSheets
+{
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
 }
 
 <h1>Track Search</h1>
@@ -40,14 +46,50 @@
         {
                 <div class="row">
                     <div class="col">@CurrentResult.TrackName / @CurrentResult.ArtistName</div>
-                    <div class="col">@Html.ActionLink("Album Art", "AlbumArt", "Track", new { TrackName = @CurrentResult.TrackName, ArtistName = @CurrentResult.ArtistName })</div>
+                    <div class="col">
+                        <button class="album-art-dialog" data-url="@Url.Action("AlbumArt", "Track", new { TrackName = @CurrentResult.TrackName, ArtistName = @CurrentResult.ArtistName } )">Album Art</button>
+                    </div>
                 </div>
         }
         </div>
     </div>
 }
 
+<div id="dialog" title="Album Art">
+    
+</div>
+
+
+
 @section Scripts
 {
     <partial name="_ValidationScriptsPartial.cshtml" />
+
+    <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize the dialog but keep it closed
+            $("#dialog").dialog({
+                autoOpen: false
+            });
+
+            // Open the dialog on button click
+            $(".album-art-dialog").click(function () {
+                // Extract the URL from the clicked button
+                var Url = $(event.target).data('url');
+
+                // Clear out the DIV so the previous image isn't displayed, even briefly.
+                $("#dialog").empty();
+
+                // Append the content to the DIV
+                $.get(Url, function (data) {
+                    $("#dialog").append(data);
+                });
+
+                // Display the div
+                $("#dialog").dialog("open");
+            });
+        });
+    </script>
 }
