@@ -58,6 +58,9 @@ namespace SampleApp
                 httpClient.BaseAddress = new Uri("https://api.genius.com");
             });
 
+            // Set up and inject IMemoryCache
+            builder.Services.AddMemoryCache();
+
 
             var app = builder.Build();
 
