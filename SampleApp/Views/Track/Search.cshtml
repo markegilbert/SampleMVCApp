@@ -1,62 +1,57 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Routing
 @model SampleApp.Models.TrackSearchModel
-
 @{
     ViewData["Title"] = "Track Search";
 }
 
-@section StyleSheets
-{
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/base/jquery-ui.css">
-}
 
 <h1>Track Search</h1>
 
-@using (Html.BeginForm("Search", "Track", FormMethod.Post, new { @id = "formID"}))
-{        
-    @Html.AntiForgeryToken()
-    <div class="form-group row my-1">
-        @Html.LabelFor(m => m.TrackName, new { @class = "col-sm-2 col-md-1 col-form-label"})
-        <div class="col-sm-10 col-md-4">
-            @Html.TextBoxFor(m => m.TrackName, new { @class = "form-control" })
-            <div class="invalid-feedback d-block">
-                @Html.ValidationMessageFor(m => m.TrackName)
+<div class="container">
+    @using (Html.BeginForm("Search", "Track", FormMethod.Post, new { @id = "formID"}))
+    {        
+        @Html.AntiForgeryToken()
+        <div class="form-group row my-1">
+            @Html.LabelFor(m => m.TrackName, new { @class = "col-sm-2 col-md-1 col-form-label"})
+            <div class="col-sm-10 col-md-4">
+                @Html.TextBoxFor(m => m.TrackName, new { @class = "form-control" })
+                <div class="invalid-feedback d-block">
+                    @Html.ValidationMessageFor(m => m.TrackName)
+                </div>
             </div>
         </div>
-    </div>
-    <div class="form-group row my-1">
-        @Html.LabelFor(m => m.ArtistName, new { @class = "col-sm-2 col-md-1 col-form-label" })
-        <div class="col-sm-10 col-md-4">
-            @Html.TextBoxFor(m => m.ArtistName, new { @class = "form-control" })
-            <div class="invalid-feedback d-block">
-                @Html.ValidationMessageFor(m => m.ArtistName)
+        <div class="form-group row my-1">
+            @Html.LabelFor(m => m.ArtistName, new { @class = "col-sm-2 col-md-1 col-form-label" })
+            <div class="col-sm-10 col-md-4">
+                @Html.TextBoxFor(m => m.ArtistName, new { @class = "form-control" })
+                <div class="invalid-feedback d-block">
+                    @Html.ValidationMessageFor(m => m.ArtistName)
+                </div>
             </div>
         </div>
-    </div>
-    <input type="submit" value="Search" class="btn btn-primary" />
-}
+        <input type="submit" value="Search" class="btn btn-primary" />
+    }
+</div>
+
 
 @if (Model.Results != null)
 {
     <div class="my-5">
         <h2>Search Results</h2>
-
-        <div class="container">
-        @foreach (TrackSearchResultModel CurrentResult in Model.Results)
-        {
-                <div class="row">
-                    <div class="col">@CurrentResult.TrackName / @CurrentResult.ArtistName</div>
-                    <div class="col">
-                        <button class="album-art-dialog" data-url="@Url.Action("AlbumArt", "Track", new { TrackName = @CurrentResult.TrackName, ArtistName = @CurrentResult.ArtistName } )">Album Art</button>
-                    </div>
-                </div>
-        }
-        </div>
+        <span>(Click for the album art)</span>
+        <ol>
+            @foreach (TrackSearchResultModel CurrentResult in Model.Results)
+            {
+                <li><a href="#" data-url="@Url.Action("AlbumArt", "Track", new { TrackName = @CurrentResult.TrackName, ArtistName = @CurrentResult.ArtistName })" onclick="onArtDialogClick();">@CurrentResult.TrackName / @CurrentResult.ArtistName</a></li>
+            }
+        </ol>
     </div>
 }
 
-<div id="dialog" title="Album Art">
-    
+
+<div id="artDialog" class="modal">
+    <span id="artDialogClose" class="close">&times;</span>
+    <img id="artDialogImage" class="modal-content">
 </div>
 
 
@@ -65,31 +60,49 @@
 {
     <partial name="_ValidationScriptsPartial.cshtml" />
 
-    <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.min.js"></script>
-
     <script>
-        $(document).ready(function () {
-            // Initialize the dialog but keep it closed
-            $("#dialog").dialog({
-                autoOpen: false
-            });
+        // Adapted from https://stackoverflow.com/questions/19395287/how-to-get-event-target-without-jquery
+        function getEventTarget(e) {
+            // TODO: event is deprecated; what's the new version?
+            e = e || window.event;
+            return e.target || e.srcElement;
+        }
 
-            // Open the dialog on button click
-            $(".album-art-dialog").click(function () {
-                // Extract the URL from the clicked button
-                var Url = $(event.target).data('url');
+        async function onArtDialogClick()
+        {
+            var artDialog = document.getElementById("artDialog");
 
-                // Clear out the DIV so the previous image isn't displayed, even briefly.
-                $("#dialog").empty();
+            // TODO: event is deprecated; what's the new version?
+            // Extract the URL from the clicked button
+            var target = getEventTarget(event);
+            var url = target.dataset.url;
 
-                // Append the content to the DIV
-                $.get(Url, function (data) {
-                    $("#dialog").append(data);
-                });
 
-                // Display the div
-                $("#dialog").dialog("open");
-            });
-        });
+            // Load up the image
+            // Adapted from: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+            // Adapted from: https://stackoverflow.com/questions/37121301/how-to-check-if-the-response-of-a-fetch-is-a-json-object-in-javascript
+            var artDialogImage = document.getElementById("artDialogImage");
+            try
+            {
+                data = await fetch(url);
+                artDialogImage.src = await data.text();
+            }
+            catch (error)
+            {
+                console.error(error);
+            }
+
+
+            // When the user clicks on <span> (x), close the modal
+            //var span = document.getElementsByClassName("close")[0];
+            var artDialogClose = document.getElementById("artDialogClose");
+            artDialogClose.onclick = function () {
+                artDialog.style.display = "none";
+            }
+
+            // Now that the model has been configured, open it
+            artDialog.style.display = "block";
+        }
+
     </script>
 }
