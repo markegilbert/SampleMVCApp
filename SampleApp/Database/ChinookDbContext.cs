@@ -13,21 +13,8 @@ namespace SampleApp.Database
         public ChinookDbContext(DbContextOptions<ChinookDbContext> options) : base(options) { }
 
 
-        //public ICollection<Artist> GetAllArtists()
-        //{
-        //    return this.Artists.OrderBy(a => a.Name).ToList();
-        //}
-        //public ICollection<Album> GetAllAlbums()
-        //{
-        //    return this.Albums.Include(a => a.Tracks).ToList();
-        //}
-        //public ICollection<Track> GetAllTracks()
-        //{
-        //    return this.Tracks.ToList();
-        //}
 
-
-        public ICollection<Track> FindTrackByNameAndOrArtist(String TrackName, String ArtistName)
+        public ICollection<Track> FindTrackByNameAndOrArtist(String? TrackName, String? ArtistName)
         {
             // TODO: Normalize the parameters
             // TODO: Is there a better way to write this?

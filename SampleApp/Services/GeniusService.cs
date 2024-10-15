@@ -22,5 +22,18 @@ namespace SampleApp.Services
             return await _Client.GetFromJsonAsync<GeniusSearchResponse>($"search?q={QueryString}");
         }
 
+
+        public String GenerateUniqueName(String TrackName, String ArtistName)
+        {
+            TrackName = (TrackName ?? String.Empty).Trim();
+            ArtistName = (ArtistName ?? String.Empty).Trim();
+
+            if (TrackName.Equals(String.Empty) && ArtistName.Equals(String.Empty)) { throw new ArgumentException("At least one parameter needs to have a valid value (something not null, not empty, and not blank)"); }
+
+            if (!TrackName.Equals(String.Empty) && !ArtistName.Equals(String.Empty)) { return $"{TrackName}_{ArtistName}"; }
+            if (!TrackName.Equals(String.Empty)) { return TrackName; }
+            return ArtistName;
+        }
+
     }
 }

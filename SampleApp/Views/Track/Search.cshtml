@@ -8,6 +8,15 @@
 <h1>Track Search</h1>
 
 <div class="container">
+    <div class="row">
+        <div class="col">
+            <p>Some example searches that return data:</p>
+            <ul>
+                <li>Artists: AC/DC, Metallica, Clapton, Tyler</li>
+                <li>Tracks: Dog, Place, Land</li>
+            </ul>
+        </div>
+    </div>
     @using (Html.BeginForm("Search", "Track", FormMethod.Post, new { @id = "formID"}))
     {        
         @Html.AntiForgeryToken()
