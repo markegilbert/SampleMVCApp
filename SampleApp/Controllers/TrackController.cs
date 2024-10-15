@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using SampleApp.Cache;
 using SampleApp.Config;
 using SampleApp.Database;
 using SampleApp.Models;
@@ -11,16 +12,17 @@ namespace SampleApp.Controllers
     {
         private readonly ILogger<HomeController> _Logger;
         private readonly ChinookDbContext _Context;
+        // TODO: Rename this to be more descriptive
         private readonly GeniusService _Service;
-        private readonly IMemoryCache _Cache;
+        private readonly CacheManager _CacheManager;
 
-        public TrackController(ILogger<HomeController> Logger, ChinookDbContext Context, GeniusService Service, IMemoryCache Cache)
+        public TrackController(ILogger<HomeController> Logger, ChinookDbContext Context, GeniusService Service, CacheManager CacheManager)
         {
             // TODO: Validate these
             this._Logger = Logger;
             this._Context = Context;
             this._Service = Service;
-            this._Cache = Cache;
+            this._CacheManager = CacheManager;
         }
 
         public IActionResult Search()
@@ -55,50 +57,32 @@ namespace SampleApp.Controllers
             return View(SearchCriteria);
         }
 
-        
+
+
         public async Task<IActionResult> AlbumArt(String TrackName, String ArtistName)
         {
-            IActionResult? ImageURL = await this._Cache.GetOrCreateAsync<IActionResult>($"{TrackName}_{ArtistName}",
-                async _ => await CallService(TrackName, ArtistName));
+            String ImageURL;
 
-            return ImageURL;
-
-
-
-            //SearchResponse = await _Service.SearchByTrackAndArtistAsync(TrackName, ArtistName);
-            //if (SearchResponse?.ResponseData?.Hits?.Length > 0)
-            //{
-            //    // TODO: Remove this once experiementation is done
-            //    //return Content($"<img src=\"{SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL}\">", "text/html; charset=UTF-8");
-
-            //    // TODO: Cache the response, using TrackName_ArtistName as the key
-
-
-            //    return Content(SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL);
-            //}
-            //else
-            //{
-            //    // TODO: Return the view with a default image
-            //    return new OkResult();
-            //}
+            // TODO: Create a new method on the GeniusAPI for generating the cache key
+            ImageURL = await this._CacheManager.GetFromCache<String>($"{TrackName}_{ArtistName}", () => CallService(TrackName, ArtistName));
+            return Content(ImageURL);
         }
 
-        private async Task<IActionResult> CallService(String TrackName, String ArtistName)
+        // TODO: Rename this to be more descriptive.
+        private async Task<String> CallService(String TrackName, String ArtistName)
         {
             GeniusSearchResponse SearchResponse;
 
             SearchResponse = await _Service.SearchByTrackAndArtistAsync(TrackName, ArtistName);
             if (SearchResponse?.ResponseData?.Hits?.Length > 0)
             {
-                // TODO: Remove this once experiementation is done
-                //return Content($"<img src=\"{SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL}\">", "text/html; charset=UTF-8");
-
-                return Content(SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL);
+                // TODO: Handle the nullability
+                return SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL;
             }
             else
             {
                 // TODO: Return the view with a default image
-                return new OkResult();
+                return "/Default.png";
             }
         }
     }

@@ -1,12 +1,16 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Options;
 using NLog.Extensions.Logging;
+using SampleApp.Cache;
 using SampleApp.Config;
 using SampleApp.Database;
 using SampleApp.ErrorHandling;
 using SampleApp.Services;
+using System;
 
 namespace SampleApp
 {
@@ -34,6 +38,17 @@ namespace SampleApp
             _LogAs.Info("GeniusAPISettings loaded");
 
 
+            // This registers your API service class as a transient service with DI.  That means
+            // each time it's injected you'll get back a new instance of the class.
+            builder.Services.AddHttpClient<GeniusService>((serviceProvider, httpClient) =>
+            {
+                GeniusAPISettings ServiceSettings = serviceProvider.GetRequiredService<IOptions<GeniusAPISettings>>().Value;
+
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {ServiceSettings.ClientAccessToken}");
+                httpClient.BaseAddress = new Uri("https://api.genius.com");
+            });
+
+
             // Add services to the container.
             builder.Logging.ClearProviders();
             builder.Logging.AddNLog();
@@ -48,20 +63,12 @@ namespace SampleApp
             builder.Services.AddDbContext<ChinookDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("ChinookDB")));
 
 
-            // This registers your service class as a transient service with DI.  That means
-            // each time it's injected you'll get back a new instance of the class.
-            builder.Services.AddHttpClient<GeniusService>((serviceProvider, httpClient) =>
-            {
-                GeniusAPISettings ServiceSettings = serviceProvider.GetRequiredService<IOptions<GeniusAPISettings>>().Value;
-
-                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {ServiceSettings.ClientAccessToken}");
-                httpClient.BaseAddress = new Uri("https://api.genius.com");
-            });
-
-            // Set up and inject IMemoryCache
+            // Set up and inject the pieces needed for caching
             builder.Services.AddMemoryCache();
+            builder.Services.AddTransient<CacheManager>();
 
 
+            // ************************************************************************************************
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
