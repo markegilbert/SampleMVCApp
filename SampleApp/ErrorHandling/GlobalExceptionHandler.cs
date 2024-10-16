@@ -9,18 +9,19 @@ namespace SampleApp.ErrorHandling
     //      builder.Services.AddProblemDetails();
     // and
     //      app.UseExceptionHandler();
-    internal sealed class GlobalExceptionHandler : IExceptionHandler
+    public sealed class GlobalExceptionHandler : IExceptionHandler
     {
-        private readonly ILogger<GlobalExceptionHandler> _logger;
+        private readonly ILogger<GlobalExceptionHandler> _Logger;
 
-        public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+        public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> Logger)
         {
-            _logger = logger;
+            if(Logger is null) { throw new ArgumentNullException($"The '{nameof(Logger)}' parameter was null or otherwise invalid"); }
+            this._Logger = Logger;
         }
 
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
+            this._Logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
             httpContext.Response.Redirect("/Home/Error");
             return true;
         }
