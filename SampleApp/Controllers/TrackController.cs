@@ -38,11 +38,10 @@ namespace SampleApp.Controllers
         {
             ICollection<Track> SearchResults;
 
-            // TODO: At least one criteria has to be specified, but both do not have to be; need a new validator for these
-            //if (!ModelState.IsValid)
-            //{
-            //    return View(SearchCriteria);
-            //}
+            if (!ModelState.IsValid)
+            {
+                return View(SearchCriteria);
+            }
 
 
             SearchResults = this._Context.FindTrackByNameAndOrArtist(SearchCriteria.TrackName, SearchCriteria.ArtistName);
@@ -70,7 +69,7 @@ namespace SampleApp.Controllers
             return Content(ImageURL);
         }
 
-
+        // TODO: This should be moved out of the controller, and into a wrapper around the GeniusService class (or perhaps incorporated into it)
         private async Task<String> GetFirstAlbumArtOrDefault(String TrackName, String ArtistName)
         {
             GeniusSearchResponse SearchResponse;

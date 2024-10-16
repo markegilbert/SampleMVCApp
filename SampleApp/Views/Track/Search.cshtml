@@ -24,19 +24,17 @@
             @Html.LabelFor(m => m.TrackName, new { @class = "col-sm-2 col-md-1 col-form-label"})
             <div class="col-sm-10 col-md-4">
                 @Html.TextBoxFor(m => m.TrackName, new { @class = "form-control" })
-                <div class="invalid-feedback d-block">
-                    @Html.ValidationMessageFor(m => m.TrackName)
-                </div>
             </div>
         </div>
         <div class="form-group row my-1">
             @Html.LabelFor(m => m.ArtistName, new { @class = "col-sm-2 col-md-1 col-form-label" })
             <div class="col-sm-10 col-md-4">
                 @Html.TextBoxFor(m => m.ArtistName, new { @class = "form-control" })
-                <div class="invalid-feedback d-block">
-                    @Html.ValidationMessageFor(m => m.ArtistName)
-                </div>
             </div>
+        </div>
+        @* The validation summary is used so that any class-level messages show up. *@
+        <div class="invalid-feedback d-block">
+            @Html.ValidationSummary()
         </div>
         <input type="submit" value="Search" class="btn btn-primary" />
     }
