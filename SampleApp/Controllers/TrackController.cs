@@ -62,10 +62,11 @@ namespace SampleApp.Controllers
 
         public async Task<IActionResult> AlbumArt(String TrackName, String ArtistName)
         {
-            String ImageURL;
+            String? ImageURL;
 
             ImageURL = await this._CacheManager.GetFromCache<String>(this._ImageService.GenerateUniqueName(TrackName, ArtistName), 
                                                                      () => GetFirstAlbumArtOrDefault(TrackName, ArtistName));
+            // TODO: Deal with the nullability here
             return Content(ImageURL);
         }
 

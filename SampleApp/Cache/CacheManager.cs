@@ -7,21 +7,23 @@ namespace SampleApp.Cache
     {
         IMemoryCache _Cache;
 
-        // If there are other types of caching needed (i.e., something not in memory) add constructor
+        // If there are other types of caching needed (i.e., distributed vs in-memory) add constructor
         // overloads for those types, and then modify GetFromCache to use the correct one.
-        // That allows downstream classes like controllers from having to know the details of the
-        // implementation.
+        // Since the CacheManager is instantiated in Program.cs, and injected into things like the
+        // MVC controllers, the implementation details are kept isolated.
         public CacheManager(IMemoryCache Cache) 
         { 
-            // TODO: Validate this
+            if (Cache is null) {  throw new ArgumentNullException($"The parameter '{nameof(Cache)}' needs to be specified"); }
             this._Cache = Cache;
         }
 
-        public async Task<T> GetFromCache<T>(String CacheKey, Func<Task<T>> IfNotFound)
+        public async Task<T?> GetFromCache<T>(String CacheKey, Func<Task<T>> IfNotFound)
         {
-            T Response;
+            T? Response;
 
-            // TODO: Deal with the nullability here
+            CacheKey = (CacheKey ?? "").Trim();
+            if (CacheKey.Equals(String.Empty)) { throw new ArgumentNullException($"The parameter '{nameof(CacheKey)}' needs to be specified"); }
+
             Response = await this._Cache.GetOrCreateAsync<T>(CacheKey, async _ => await IfNotFound());
 
             return Response;
