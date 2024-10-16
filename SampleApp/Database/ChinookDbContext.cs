@@ -3,15 +3,24 @@
 namespace SampleApp.Database
 {
     // Pattern Source: https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/
-    public sealed class ChinookDbContext : DbContext
+    public sealed class ChinookDbContext : DbContext, IChinookDbContext
     {
+        private String? _ConnectionString;
         public DbSet<Album> Albums { get; set; }
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Track> Tracks { get; set; }
 
 
-        public ChinookDbContext(DbContextOptions<ChinookDbContext> options) : base(options) { }
+        public ChinookDbContext(String ConnectionString)
+        {
+            this._ConnectionString = ConnectionString;
+        }
 
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite(this._ConnectionString);
+        }
 
 
         public ICollection<Track> FindTrackByNameAndOrArtist(String? TrackName, String? ArtistName)

@@ -34,7 +34,7 @@ namespace SampleApp.Models
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (String.IsNullOrEmpty(this.TrackName) && String.IsNullOrEmpty(this.ArtistName))
-            
+            { 
                 // This error is not tied to a specific field, which means it will only show up in a validation summary on the view.
                 // To tie it to a specific view property, specify the second constructor parameter as "new[] { nameof(PropertyName} }"
                 yield return new ValidationResult("Please specify one or both of Track and Artist");

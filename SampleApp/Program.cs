@@ -60,7 +60,14 @@ namespace SampleApp
             builder.Services.AddProblemDetails();
 
             // Inject DbContext objects for each database
-            builder.Services.AddDbContext<ChinookDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("ChinookDB")));
+            // Previously I could use a line like this:
+            //
+            //      builder.Services.AddDbContext<ChinookDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("ChinookDB")));
+            //
+            // But that injects a ChinookDbContext object.  That won't map to any controllers that expect an IChinookDbContext object.  To solve that,
+            // I need to inject an IChinookDbContext object.  To get the connection configured properly, I override the OnConfiguring() method in the
+            // ChinookDbContext class, and pass in the connection string via the constructor.
+            builder.Services.AddTransient<IChinookDbContext, ChinookDbContext>((serviceProvider) => new ChinookDbContext(builder.Configuration.GetConnectionString("ChinookDB")));
 
 
             // Set up and inject the pieces needed for caching

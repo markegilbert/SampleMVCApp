@@ -13,14 +13,18 @@ namespace SampleApp.Controllers
         private const String DEFAULT_ALBUM_ART_PATH = "../images/AlbumArtDefault.png";
         private const String UNKNOWN_ARTIST_NAME = "Artist Unknown";
 
-        private readonly ILogger<HomeController> _Logger;
-        private readonly ChinookDbContext _Context;
+        private readonly ILogger<TrackController> _Logger;
+        private readonly IChinookDbContext _Context;
         private readonly GeniusService _ImageService;
         private readonly CacheManager _CacheManager;
 
-        public TrackController(ILogger<HomeController> Logger, ChinookDbContext Context, GeniusService ImageService, CacheManager CacheManager)
+        public TrackController(ILogger<TrackController> Logger, IChinookDbContext Context, GeniusService ImageService, CacheManager CacheManager)
         {
-            // TODO: Validate these
+            if (Logger is null) { throw new ArgumentNullException($"The '{nameof(Logger)}' parameter was null or otherwise invalid"); }
+            if (Context is null) { throw new ArgumentNullException($"The '{nameof(Context)}' parameter was null or otherwise invalid"); }
+            if (ImageService is null) { throw new ArgumentNullException($"The '{nameof(ImageService)}' parameter was null or otherwise invalid"); }
+            if (CacheManager is null) { throw new ArgumentNullException($"The '{nameof(CacheManager)}' parameter was null or otherwise invalid"); }
+
             this._Logger = Logger;
             this._Context = Context;
             this._ImageService = ImageService;
@@ -42,7 +46,6 @@ namespace SampleApp.Controllers
             {
                 return View(SearchCriteria);
             }
-
 
             SearchResults = this._Context.FindTrackByNameAndOrArtist(SearchCriteria.TrackName, SearchCriteria.ArtistName);
             SearchCriteria.Results = new List<TrackSearchResultModel>();
