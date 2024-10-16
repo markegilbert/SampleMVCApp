@@ -41,6 +41,9 @@ namespace UnitTests
 
             this._DbContext = Substitute.For<IChinookDbContext>();
 
+            // This is the simpler of the two methods used in this test suite for mocking HttpClient.  Please see GeniusServiceTests
+            // and the MockHttpMessageHandler class for the more sophisticated version that allows testing of the actual requests
+            // being made.
             this._HttpMessageHandlerMock = Substitute.For<HttpMessageHandler>();
             this._HttpClientMock = new HttpClient(this._HttpMessageHandlerMock);
 
