@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace SampleApp.Models
@@ -7,7 +8,7 @@ namespace SampleApp.Models
     {
         private String _TrackName = "";
         private String _ArtistName = "";
-        private int _TotalNumberOfResults;
+        private int _TotalNumberOfResults, _Page;
 
         [DisplayName("Track")]
         public String? TrackName 
@@ -43,7 +44,14 @@ namespace SampleApp.Models
                 return (TotalNumberOfResults / NumberOfResultsPerPage) + 1;
             }
         }
-        public int Page { get; set; }
+        public int Page
+        {
+            get 
+            {
+                return ((this._Page == 0 && this.TotalNumberOfResults > 0) ? 1 : this._Page);
+            }
+            set { this._Page = value; }
+        }
         public int ResultsCounterStart
         {
             get 

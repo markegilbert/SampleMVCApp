@@ -28,5 +28,18 @@ namespace SampleApp.Cache
 
             return Response;
         }
+
+
+        public String GenerateUniqueName(String CacheKeyPart1, String CacheKeyPart2)
+        {
+            CacheKeyPart1 = (CacheKeyPart1 ?? "").Trim();
+            CacheKeyPart2 = (CacheKeyPart2 ?? "").Trim();
+
+            if (CacheKeyPart1.Equals(String.Empty) && CacheKeyPart2.Equals(String.Empty)) { throw new ArgumentException("At least one parameter needs to have a valid value (something not null, not empty, and not blank)"); }
+
+            if (!CacheKeyPart1.Equals(String.Empty) && !CacheKeyPart2.Equals(String.Empty)) { return $"{CacheKeyPart1}_{CacheKeyPart2}"; }
+            if (!CacheKeyPart1.Equals(String.Empty)) { return CacheKeyPart1; }
+            return CacheKeyPart2;
+        }
     }
 }

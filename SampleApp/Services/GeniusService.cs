@@ -22,18 +22,6 @@ namespace SampleApp.Services
         }
 
 
-        public String GenerateUniqueName(String TrackName, String ArtistName)
-        {
-            TrackName = (TrackName ?? "").Trim();
-            ArtistName = (ArtistName ?? "").Trim();
-
-            if (TrackName.Equals(String.Empty) && ArtistName.Equals(String.Empty)) { throw new ArgumentException("At least one parameter needs to have a valid value (something not null, not empty, and not blank)"); }
-
-            if (!TrackName.Equals(String.Empty) && !ArtistName.Equals(String.Empty)) { return $"{TrackName}_{ArtistName}"; }
-            if (!TrackName.Equals(String.Empty)) { return TrackName; }
-            return ArtistName;
-        }
-
         public String GenerateSearchString(String? TrackName, String? ArtistName)
         {
             TrackName = (TrackName ?? "").Trim();

@@ -37,34 +37,6 @@ namespace UnitTests
 
 
         [Test]
-        public void GenerateUniqueName_ValidTrackName_ValidArtistName_ValidKeyReturned()
-        {
-            Assert.That(this._Service.GenerateUniqueName("TrackA", "ArtistB"), Is.EqualTo("TrackA_ArtistB"));
-        }
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase("  ")]
-        public void GenerateUniqueName_ValidTrackName_ArtistNameInvalid_ValidKeyReturnedWithJustTrackName(String TestValue)
-        {
-            Assert.That(this._Service.GenerateUniqueName("TrackA", TestValue), Is.EqualTo("TrackA"));
-        }
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase("  ")]
-        public void GenerateUniqueName_ValidTrackInvalid_ArtistNameValid_ValidKeyReturnedWithJustArtistName(String TestValue)
-        {
-            Assert.That(this._Service.GenerateUniqueName(TestValue, "ArtistB"), Is.EqualTo("ArtistB"));
-        }
-        [TestCase(null)]
-        [TestCase("")]
-        [TestCase("  ")]
-        public void GenerateUniqueName_BothParametersAreInvalid_ExceptionThrown(String TestValue)
-        {
-            Assert.Throws<ArgumentException>(() => this._Service.GenerateUniqueName(TestValue, TestValue));
-        }
-
-
-        [Test]
         public void GenerateSearchString_TrackNameAndArtistNameSpecified_ValidSearchStringReturned()
         {
             Assert.That(this._Service.GenerateSearchString("TrackA", "ArtistB"), Is.EqualTo("TrackA by ArtistB"));

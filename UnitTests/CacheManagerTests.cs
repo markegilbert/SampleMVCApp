@@ -100,5 +100,46 @@ namespace UnitTests
             Assert.That(this._NumberOfTimesDelegateInvoked, Is.EqualTo(0), "Delegate function should not have been invoked");
         }
 
+
+
+
+        [Test]
+        public void GenerateUniqueName_ValidTrackName_ValidArtistName_ValidKeyReturned()
+        {
+            this._CacheMock = Substitute.For<IMemoryCache>();
+            this._CacheManager = new CacheManager(this._CacheMock);
+
+            Assert.That(this._CacheManager.GenerateUniqueName("TrackA", "ArtistB"), Is.EqualTo("TrackA_ArtistB"));
+        }
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("  ")]
+        public void GenerateUniqueName_ValidTrackName_ArtistNameInvalid_ValidKeyReturnedWithJustTrackName(String TestValue)
+        {
+            this._CacheMock = Substitute.For<IMemoryCache>();
+            this._CacheManager = new CacheManager(this._CacheMock);
+
+            Assert.That(this._CacheManager.GenerateUniqueName("TrackA", TestValue), Is.EqualTo("TrackA"));
+        }
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("  ")]
+        public void GenerateUniqueName_ValidTrackInvalid_ArtistNameValid_ValidKeyReturnedWithJustArtistName(String TestValue)
+        {
+            this._CacheMock = Substitute.For<IMemoryCache>();
+            this._CacheManager = new CacheManager(this._CacheMock);
+
+            Assert.That(this._CacheManager.GenerateUniqueName(TestValue, "ArtistB"), Is.EqualTo("ArtistB"));
+        }
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("  ")]
+        public void GenerateUniqueName_BothParametersAreInvalid_ExceptionThrown(String TestValue)
+        {
+            this._CacheMock = Substitute.For<IMemoryCache>();
+            this._CacheManager = new CacheManager(this._CacheMock);
+
+            Assert.Throws<ArgumentException>(() => this._CacheManager.GenerateUniqueName(TestValue, TestValue));
+        }
     }
 }

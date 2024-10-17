@@ -33,10 +33,7 @@ namespace SampleApp.Controllers
             this._CacheManager = CacheManager;
         }
 
-        //public IActionResult Search()
-        //{
-        //    return View(new TrackSearchModel());
-        //}
+
         public async Task<IActionResult> Search(String TrackName, String ArtistName, int Page)
         {
             // If I do anything other than this
@@ -58,39 +55,38 @@ namespace SampleApp.Controllers
             return await Search(new TrackSearchModel() { TrackName = TrackName, ArtistName = ArtistName, Page = Page });
         }
 
-        // TODO: The object name SearchCriteria is not correct - this model holds both search criteria and search results. Rename this.
+
         [HttpPost]
         [ValidateAntiForgeryToken()]
-        public async Task<IActionResult> Search(TrackSearchModel SearchCriteria)
+        public async Task<IActionResult> Search(TrackSearchModel CriteriaAndResults)
         {
             ICollection<Track>? SearchResults;
 
             if (!ModelState.IsValid)
             {
-                return View(SearchCriteria);
+                return View(CriteriaAndResults);
             }
 
             // Find the search results
-            SearchResults = await this._CacheManager.GetFromCache<ICollection<Track>>(this._ImageService.GenerateUniqueName(SearchCriteria.TrackName, SearchCriteria.ArtistName),
-                                                                     async () => await this._Context.FindTrackByNameAndOrArtist(SearchCriteria.TrackName, SearchCriteria.ArtistName));
+            SearchResults = await this._CacheManager.GetFromCache<ICollection<Track>>(this._CacheManager.GenerateUniqueName(CriteriaAndResults.TrackName, CriteriaAndResults.ArtistName),
+                                                                                      async () => await this._Context.FindTrackByNameAndOrArtist(CriteriaAndResults.TrackName, CriteriaAndResults.ArtistName));
+
             if (SearchResults is null) { SearchResults = new List<Track>(); }
 
             // Load up the new model
-            // TODO: This logic should really be moved to the TrackSearchModel class
-            SearchCriteria.Page = ((SearchCriteria.Page == 0 && SearchResults.Count > 0) ? 1 : SearchCriteria.Page);
-            SearchCriteria.TotalNumberOfResults = SearchResults.Count;
-            SearchCriteria.Results = new List<TrackSearchResultModel>();
-            SearchCriteria.Results.AddRange((from t in SearchResults
+            CriteriaAndResults.TotalNumberOfResults = SearchResults.Count;
+            CriteriaAndResults.Results = new List<TrackSearchResultModel>();
+            CriteriaAndResults.Results.AddRange((from t in SearchResults
                                              select new TrackSearchResultModel()
                                              {
                                                  TrackName = t.Name,
                                                  TrackId = t.TrackId,
                                                  ArtistName = (t.Composer ?? UNKNOWN_ARTIST_NAME)
                                              })
-                                            .Skip((SearchCriteria.Page - 1) * SearchCriteria.NumberOfResultsPerPage).Take(SearchCriteria.NumberOfResultsPerPage)
+                                            .Skip((CriteriaAndResults.Page - 1) * CriteriaAndResults.NumberOfResultsPerPage).Take(CriteriaAndResults.NumberOfResultsPerPage)
                                             );
 
-            return View(SearchCriteria);
+            return View(CriteriaAndResults);
         }
 
 
@@ -99,8 +95,9 @@ namespace SampleApp.Controllers
         {
             String? ImageURL;
 
-            ImageURL = await this._CacheManager.GetFromCache<String>(this._ImageService.GenerateUniqueName(TrackName, ArtistName), 
+            ImageURL = await this._CacheManager.GetFromCache<String>(this._CacheManager.GenerateUniqueName(TrackName, ArtistName),
                                                                      () => GetFirstAlbumArtOrDefault(TrackName, ArtistName));
+
             // TODO: Deal with the nullability here
             return Content(ImageURL);
         }

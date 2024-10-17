@@ -28,7 +28,7 @@ namespace SampleApp.Database
         public async Task<ICollection<Track>> FindTrackByNameAndOrArtist(String? TrackName, String? ArtistName)
         {
             // TODO: Normalize the parameters
-            // TODO: Is there a better way to write this?
+            // TODO: Is there a cleaner way to write this?
 
             if (!String.IsNullOrEmpty(TrackName) && !String.IsNullOrEmpty(ArtistName)) 
             {

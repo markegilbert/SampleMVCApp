@@ -179,5 +179,26 @@ namespace UnitTests
             Assert.That(this._Model.ResultsCounterStart, Is.EqualTo(ExpectedStart));
         }
 
+
+        [Test]
+        public void Page_TotalNumberOfResultsIs0_Returns0()
+        {
+            this._Model.TotalNumberOfResults = 0;
+            Assert.That(this._Model.Page, Is.EqualTo(0));
+        }
+        [Test]
+        public void Page_TotalNumberOfResultsIs10_PageNotExplicitlySet_Returns1()
+        {
+            this._Model.TotalNumberOfResults = 10;
+            Assert.That(this._Model.Page, Is.EqualTo(1));
+        }
+        [Test]
+        public void Page_TotalNumberOfResultsIs10_PageExplicitlySetTo2_Returns2()
+        {
+            this._Model.TotalNumberOfResults = 10;
+            this._Model.Page = 2;
+            Assert.That(this._Model.Page, Is.EqualTo(2));
+        }
+
     }
 }
