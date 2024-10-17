@@ -7,6 +7,7 @@ namespace SampleApp.Models
     {
         private String _TrackName = "";
         private String _ArtistName = "";
+        private int _TotalNumberOfResults;
 
         [DisplayName("Track")]
         public String? TrackName 
@@ -28,36 +29,32 @@ namespace SampleApp.Models
             }
         }
 
-        public int NumberOfResults { get; set; }
-        public int NumberOfResultsPerPage { get; set; }
+        public int TotalNumberOfResults 
+        { 
+            get { return this._TotalNumberOfResults; }
+            set { this._TotalNumberOfResults = (value < 0 ? 0 : value); }
+        }
+        public int NumberOfResultsPerPage { get; set; } = 5;
         public int NumberOfPages
         {
             get
             {
-                // TODO: Write tests for this
-                if (NumberOfResults == 0) { return 0; }
-                if (NumberOfResults < NumberOfResultsPerPage) { return 1; }
-                if (NumberOfResults % NumberOfResultsPerPage == 0) { return NumberOfResults / NumberOfResultsPerPage; }
-                return (NumberOfResults / NumberOfResultsPerPage) + 1;
+                if (TotalNumberOfResults % NumberOfResultsPerPage == 0) { return TotalNumberOfResults / NumberOfResultsPerPage; }
+                return (TotalNumberOfResults / NumberOfResultsPerPage) + 1;
             }
         }
         public int Page { get; set; }
-        public int ResultEnumerationStart
+        public int ResultsCounterStart
         {
-            get
-            {
-                // TODO: Write tests for this
-                return (this.NumberOfResultsPerPage * (this.Page - 1)) + 1;
+            get 
+            { 
+                if (this.Page == 0) return 0;
+                return (this.NumberOfResultsPerPage * (this.Page - 1)) + 1; 
             }
         }
 
         public List<TrackSearchResultModel>? Results { get; set; }
 
-        // TODO: Write a test for this
-        public TrackSearchModel()
-        {
-            this.NumberOfResultsPerPage = 5;
-        }
 
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

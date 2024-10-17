@@ -87,5 +87,97 @@ namespace UnitTests
             Assert.That(this._ValidationResults, Is.Not.Null, "ValidationResults should not have been null");
             Assert.That(this._ValidationResults.Count(), Is.EqualTo(0), "ValidationResults should have been empty");
         }
+
+
+        [Test]
+        public void NumberOfResultsPerPage_InstantiateClass_DefaultsTo5()
+        {
+            Assert.That(this._Model.NumberOfResultsPerPage, Is.EqualTo(5));
+        }
+        [Test]
+        public void NumberOfResultsPerPage_OverriddenTo10_Returns10()
+        {
+            this._Model.NumberOfResultsPerPage = 10;
+            Assert.That(this._Model.NumberOfResultsPerPage, Is.EqualTo(10));
+        }
+
+
+        [Test]
+        public void NumberOfPages_TotalNumberOfResultsIs0_Returns0()
+        {
+            this._Model.TotalNumberOfResults = 0;
+            Assert.That(this._Model.NumberOfPages, Is.EqualTo(0));
+        }
+        [Test]
+        public void NumberOfPages_TotalNumberOfResults_IsLessThan_NumberOfResultsPerPage_Returns1()
+        {
+            this._Model.TotalNumberOfResults = 2;
+            this._Model.NumberOfResultsPerPage = 5;
+            Assert.That(this._Model.NumberOfPages, Is.EqualTo(1));
+        }
+        [Test]
+        public void NumberOfPages_TotalNumberOfResults_IsEqualTo_NumberOfResultsPerPage_Returns1()
+        {
+            this._Model.TotalNumberOfResults = 5;
+            this._Model.NumberOfResultsPerPage = 5;
+            Assert.That(this._Model.NumberOfPages, Is.EqualTo(1));
+        }
+        [Test]
+        public void NumberOfPages_TotalNumberOfResults_IsOneMoreThan_NumberOfResultsPerPage_Returns2()
+        {
+            this._Model.TotalNumberOfResults = 6;
+            this._Model.NumberOfResultsPerPage = 5;
+            Assert.That(this._Model.NumberOfPages, Is.EqualTo(2));
+        }
+        [Test]
+        public void NumberOfPages_TotalNumberOfResults_IsTwice_NumberOfResultsPerPage_Returns2()
+        {
+            this._Model.TotalNumberOfResults = 10;
+            this._Model.NumberOfResultsPerPage = 5;
+            Assert.That(this._Model.NumberOfPages, Is.EqualTo(2));
+        }
+        [Test]
+        public void NumberOfPages_TotalNumberOfResults_IsTwicePlus1_NumberOfResultsPerPage_Returns3()
+        {
+            this._Model.TotalNumberOfResults = 11;
+            this._Model.NumberOfResultsPerPage = 5;
+            Assert.That(this._Model.NumberOfPages, Is.EqualTo(3));
+        }
+
+
+        [Test]
+        public void TotalNumberOfResults_InstantiateClass_Returns0()
+        {
+            Assert.That(this._Model.TotalNumberOfResults, Is.EqualTo(0));
+        }
+        [Test]
+        public void TotalNumberOfResults_SetTo1_Returns1()
+        {
+            this._Model.TotalNumberOfResults = 1;
+            Assert.That(this._Model.TotalNumberOfResults, Is.EqualTo(1));
+        }
+        [Test]
+        public void TotalNumberOfResults_SetToSomethingNegative_Returns0()
+        {
+            this._Model.TotalNumberOfResults = -42;
+            Assert.That(this._Model.TotalNumberOfResults, Is.EqualTo(0));
+        }
+
+
+        [Test]
+        public void ResultsCounterStart_InstantiateClass_Returns0()
+        {
+            Assert.That(this._Model.ResultsCounterStart, Is.EqualTo(0));
+        }
+        [TestCase(1, 1)]
+        [TestCase(2, 6)]
+        [TestCase(3, 11)]
+        public void ResultsCounterStart_NumberResultsPerPageIs5_GivenPageCount_ReturnsCorrectStartingPoint(int PageCount, int ExpectedStart)
+        {
+            this._Model.Page = PageCount;
+            this._Model.NumberOfResultsPerPage = 5;
+            Assert.That(this._Model.ResultsCounterStart, Is.EqualTo(ExpectedStart));
+        }
+
     }
 }

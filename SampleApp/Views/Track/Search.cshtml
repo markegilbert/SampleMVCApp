@@ -45,18 +45,18 @@
 {
     <div class="my-5">
         <h2>Search Results</h2>
-        <span>Found @Model.NumberOfResults tracks.</span>
-        @if (@Model.NumberOfResults > 0)
+        <span>Found @Model.TotalNumberOfResults tracks.</span>
+        @if (@Model.TotalNumberOfResults > 0)
         {
             <span>(Click for the album art.)</span>
         }
-        <ol start="@Model.ResultEnumerationStart">
+        <ol start="@Model.ResultsCounterStart">
             @foreach (TrackSearchResultModel CurrentResult in Model.Results)
             {
                 <li><a href="#" data-url="@Url.Action("AlbumArt", "Track", new { TrackName = @CurrentResult.TrackName, ArtistName = @CurrentResult.ArtistName })" onclick="onArtDialogClick();">@CurrentResult.TrackName / @CurrentResult.ArtistName</a></li>
             }
         </ol>
-        @if (@Model.NumberOfResults > 0)
+        @if (@Model.TotalNumberOfResults > 0)
         {
             <nav aria-label="Search results navigation">
                 <ul class="pagination">

@@ -78,7 +78,7 @@ namespace SampleApp.Controllers
             // Load up the new model
             // TODO: This logic should really be moved to the TrackSearchModel class
             SearchCriteria.Page = ((SearchCriteria.Page == 0 && SearchResults.Count > 0) ? 1 : SearchCriteria.Page);
-            SearchCriteria.NumberOfResults = SearchResults.Count;
+            SearchCriteria.TotalNumberOfResults = SearchResults.Count;
             SearchCriteria.Results = new List<TrackSearchResultModel>();
             SearchCriteria.Results.AddRange((from t in SearchResults
                                              select new TrackSearchResultModel()
