@@ -10,6 +10,8 @@ namespace SampleApp.Database
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Track> Tracks { get; set; }
 
+        public const int PAGE_SIZE = 5;
+
 
         public ChinookDbContext(String ConnectionString)
         {
@@ -23,7 +25,7 @@ namespace SampleApp.Database
         }
 
 
-        public ICollection<Track> FindTrackByNameAndOrArtist(String? TrackName, String? ArtistName)
+        public async Task<ICollection<Track>> FindTrackByNameAndOrArtist(String? TrackName, String? ArtistName)
         {
             // TODO: Normalize the parameters
             // TODO: Is there a better way to write this?

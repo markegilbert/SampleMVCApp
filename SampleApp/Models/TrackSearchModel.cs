@@ -28,7 +28,36 @@ namespace SampleApp.Models
             }
         }
 
+        public int NumberOfResults { get; set; }
+        public int NumberOfResultsPerPage { get; set; }
+        public int NumberOfPages
+        {
+            get
+            {
+                // TODO: Write tests for this
+                if (NumberOfResults == 0) { return 0; }
+                if (NumberOfResults < NumberOfResultsPerPage) { return 1; }
+                if (NumberOfResults % NumberOfResultsPerPage == 0) { return NumberOfResults / NumberOfResultsPerPage; }
+                return (NumberOfResults / NumberOfResultsPerPage) + 1;
+            }
+        }
+        public int Page { get; set; }
+        public int ResultEnumerationStart
+        {
+            get
+            {
+                // TODO: Write tests for this
+                return (this.NumberOfResultsPerPage * (this.Page - 1)) + 1;
+            }
+        }
+
         public List<TrackSearchResultModel>? Results { get; set; }
+
+        // TODO: Write a test for this
+        public TrackSearchModel()
+        {
+            this.NumberOfResultsPerPage = 5;
+        }
 
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

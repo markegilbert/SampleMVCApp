@@ -2,6 +2,6 @@
 {
     public interface IChinookDbContext
     {
-        ICollection<Track> FindTrackByNameAndOrArtist(string? TrackName, string? ArtistName);
+        Task<ICollection<Track>> FindTrackByNameAndOrArtist(string? TrackName, string? ArtistName);
     }
 }
