@@ -36,6 +36,8 @@ namespace SampleApp.Controllers
 
         public async Task<IActionResult> Search(String TrackName, String ArtistName, int Page)
         {
+            this._Logger.LogDebug("GET Search");
+
             // If I do anything other than this
             //      return View(new TrackSearchModel());
             // The ModelState evaluates the TrackName and ArtistName properties individually.
@@ -49,9 +51,11 @@ namespace SampleApp.Controllers
 
             if (String.IsNullOrEmpty(TrackName) && String.IsNullOrEmpty(ArtistName))
             {
+                this._Logger.LogDebug("\tNeither Track nor Artist were specified; returning the initial view");
                 return View(new TrackSearchModel());
             }
 
+            this._Logger.LogDebug($"\tReturning a pre-populated view with track '{TrackName}' and artist '{ArtistName}', defaulting to page {Page}");
             return await Search(new TrackSearchModel() { TrackName = TrackName, ArtistName = ArtistName, Page = Page });
         }
 
@@ -62,16 +66,26 @@ namespace SampleApp.Controllers
         {
             ICollection<Track>? SearchResults;
 
-            if (!ModelState.IsValid)
+            this._Logger.LogDebug("POST Search");
+
+            if (!ModelState.IsValid) 
             {
-                return View(CriteriaAndResults);
+                this._Logger.LogDebug($"\tModelState was not valid.");
+                return View(CriteriaAndResults); 
             }
+            this._Logger.LogDebug($"\tModelState was valid.");
+
 
             // Find the search results
             SearchResults = await this._CacheManager.GetFromCache<ICollection<Track>>(this._CacheManager.GenerateUniqueName(CriteriaAndResults.TrackName, CriteriaAndResults.ArtistName),
                                                                                       async () => await this._Context.FindTrackByNameAndOrArtist(CriteriaAndResults.TrackName, CriteriaAndResults.ArtistName));
+            if (SearchResults is null) 
+            {
+                this._Logger.LogDebug("\tSearchResults was null; using an empty list");
+                SearchResults = new List<Track>(); 
+            }
+            this._Logger.LogDebug($"\tSearchResults has {SearchResults.Count} items");
 
-            if (SearchResults is null) { SearchResults = new List<Track>(); }
 
             // Load up the new model
             CriteriaAndResults.TotalNumberOfResults = SearchResults.Count;
@@ -86,6 +100,7 @@ namespace SampleApp.Controllers
                                             .Skip((CriteriaAndResults.Page - 1) * CriteriaAndResults.NumberOfResultsPerPage).Take(CriteriaAndResults.NumberOfResultsPerPage)
                                             );
 
+            this._Logger.LogDebug($"\tDisplaying page {CriteriaAndResults.Page} of {CriteriaAndResults.NumberOfPages} for Track '{CriteriaAndResults.TrackName}' and Artist '{CriteriaAndResults.ArtistName}'");
             return View(CriteriaAndResults);
         }
 
@@ -95,10 +110,14 @@ namespace SampleApp.Controllers
         {
             String? ImageURL;
 
+            this._Logger.LogDebug("GET AlbumArt");
+
+            this._Logger.LogDebug($"\tRequesting image for Track '{TrackName}' and Artist '{ArtistName}'");
+
             ImageURL = await this._CacheManager.GetFromCache<String>(this._CacheManager.GenerateUniqueName(TrackName, ArtistName),
                                                                      () => GetFirstAlbumArtOrDefault(TrackName, ArtistName));
 
-            // TODO: Deal with the nullability here
+            // TODO: Deal with the nullibility here
             return Content(ImageURL);
         }
 
@@ -108,12 +127,21 @@ namespace SampleApp.Controllers
             GeniusSearchResponse SearchResponse;
 
             SearchResponse = await _ImageService.SearchByTrackAndArtistAsync(TrackName, ArtistName);
+
             if (SearchResponse?.ResponseData?.Hits?.Length > 0)
             {
-                return (SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL ?? DEFAULT_ALBUM_ART_PATH);
+                if (String.IsNullOrEmpty(SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL))
+                {
+                    this._Logger.LogDebug($"\tImage service returned a record, but the HeaderImageThumbnailURL property was null or empty; using the default image");
+                    return DEFAULT_ALBUM_ART_PATH;
+                }
+
+                this._Logger.LogDebug($"\tImage service returned the image to display");
+                return SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL;
             }
             else
             {
+                this._Logger.LogDebug($"\tImage service did not return an image; using default image");
                 return DEFAULT_ALBUM_ART_PATH;
             }
         }
