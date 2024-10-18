@@ -53,7 +53,7 @@
         <ol start="@Model.ResultsCounterStart">
             @foreach (TrackSearchResultModel CurrentResult in Model.Results)
             {
-                <li><a href="#" data-url="@Url.Action("AlbumArt", "Track", new { TrackName = @CurrentResult.TrackName, ArtistName = @CurrentResult.ArtistName })" onclick="onArtDialogClick();">@CurrentResult.TrackName / @CurrentResult.ArtistName</a></li>
+                <li class="image-link"><a href="#" data-url="@Url.Action("AlbumArt", "Track", new { TrackName = @CurrentResult.TrackName, ArtistName = @CurrentResult.ArtistName })">@CurrentResult.TrackName / @CurrentResult.ArtistName</a></li>
             }
         </ol>
         @if (@Model.TotalNumberOfResults > 0)
@@ -103,20 +103,12 @@
 
     <script>
         // Adapted from https://stackoverflow.com/questions/19395287/how-to-get-event-target-without-jquery
-        function getEventTarget(e) {
-            // TODO: event is deprecated; what's the new version?
-            e = e || window.event;
-            return e.target || e.srcElement;
-        }
-
-        async function onArtDialogClick()
+        async function onArtDialogClick(clickedLI)
         {
             var artDialog = document.getElementById("artDialog");
 
-            // TODO: event is deprecated; what's the new version?
             // Extract the URL from the clicked button
-            var target = getEventTarget(event);
-            var url = target.dataset.url;
+            var url = clickedLI.target.dataset.url;
 
 
             // Load up the image
@@ -135,7 +127,6 @@
 
 
             // When the user clicks on <span> (x), close the modal
-            //var span = document.getElementsByClassName("close")[0];
             var artDialogClose = document.getElementById("artDialogClose");
             artDialogClose.onclick = function () {
                 artDialog.style.display = "none";
@@ -143,6 +134,16 @@
 
             // Now that the model has been configured, open it
             artDialog.style.display = "block";
+        }
+
+
+
+        // Wire up the click event listener to all LI tags that use the image-link class.
+        // Adapted from https://stackoverflow.com/questions/22754315/for-loop-for-htmlcollection-elements
+        const liElements = document.getElementsByClassName('image-link');
+        for(let CurrentLI of liElements)
+        {
+            CurrentLI.addEventListener('click', onArtDialogClick);
         }
 
     </script>
