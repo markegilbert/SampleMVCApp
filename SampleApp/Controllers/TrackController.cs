@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Caching.Memory;
 using SampleApp.Cache;
-using SampleApp.Config;
 using SampleApp.Database;
 using SampleApp.Models;
 using SampleApp.Services;
-using System.Drawing.Printing;
 
 namespace SampleApp.Controllers
 {
@@ -36,7 +32,9 @@ namespace SampleApp.Controllers
 
         public async Task<IActionResult> Search(String TrackName, String ArtistName, int Page)
         {
+            #region Logging
             this._Logger.LogDebug("GET Search");
+            #endregion
 
             // If I do anything other than this
             //      return View(new TrackSearchModel());
@@ -51,11 +49,15 @@ namespace SampleApp.Controllers
 
             if (String.IsNullOrEmpty(TrackName) && String.IsNullOrEmpty(ArtistName))
             {
+                #region Logging
                 this._Logger.LogDebug("\tNeither Track nor Artist were specified; returning the initial view");
+                #endregion
                 return View(new TrackSearchModel());
             }
 
+            #region Logging
             this._Logger.LogDebug($"\tReturning a pre-populated view with track '{TrackName}' and artist '{ArtistName}', defaulting to page {Page}");
+            #endregion
             return await Search(new TrackSearchModel() { TrackName = TrackName, ArtistName = ArtistName, Page = Page });
         }
 
@@ -66,14 +68,20 @@ namespace SampleApp.Controllers
         {
             ICollection<Track>? SearchResults;
 
+            #region Logging
             this._Logger.LogDebug("POST Search");
+            #endregion
 
             if (!ModelState.IsValid) 
             {
+                #region Logging
                 this._Logger.LogDebug($"\tModelState was not valid.");
+                #endregion
                 return View(CriteriaAndResults); 
             }
+            #region Logging
             this._Logger.LogDebug($"\tModelState was valid.");
+            #endregion
 
 
             // Find the search results
@@ -81,10 +89,14 @@ namespace SampleApp.Controllers
                                                                                       async () => await this._Context.FindTrackByNameAndOrArtist(CriteriaAndResults.TrackName, CriteriaAndResults.ArtistName));
             if (SearchResults is null) 
             {
+                #region Logging
                 this._Logger.LogDebug("\tSearchResults was null; using an empty list");
+                #endregion
                 SearchResults = new List<Track>(); 
             }
+            #region Logging
             this._Logger.LogDebug($"\tSearchResults has {SearchResults.Count} items");
+            #endregion
 
 
             // Load up the new model
@@ -100,7 +112,9 @@ namespace SampleApp.Controllers
                                             .Skip((CriteriaAndResults.Page - 1) * CriteriaAndResults.NumberOfResultsPerPage).Take(CriteriaAndResults.NumberOfResultsPerPage)
                                             );
 
+            #region Logging
             this._Logger.LogDebug($"\tDisplaying page {CriteriaAndResults.Page} of {CriteriaAndResults.NumberOfPages} for Track '{CriteriaAndResults.TrackName}' and Artist '{CriteriaAndResults.ArtistName}'");
+            #endregion
             return View(CriteriaAndResults);
         }
 
@@ -110,40 +124,18 @@ namespace SampleApp.Controllers
         {
             String? ImageURL;
 
+            #region Logging
             this._Logger.LogDebug("GET AlbumArt");
 
             this._Logger.LogDebug($"\tRequesting image for Track '{TrackName}' and Artist '{ArtistName}'");
+            #endregion
 
             ImageURL = await this._CacheManager.GetFromCache<String>(this._CacheManager.GenerateUniqueName(TrackName, ArtistName),
-                                                                     () => GetFirstAlbumArtOrDefault(TrackName, ArtistName));
+                                                                     () => this._ImageService.GetFirstAlbumArtOrDefault(TrackName, ArtistName, DEFAULT_ALBUM_ART_PATH));
 
             // TODO: Deal with the nullibility here
             return Content(ImageURL);
         }
 
-        // TODO: This should be moved out of the controller, and into a wrapper around the GeniusService class (or perhaps incorporated into it)
-        private async Task<String> GetFirstAlbumArtOrDefault(String TrackName, String ArtistName)
-        {
-            GeniusSearchResponse SearchResponse;
-
-            SearchResponse = await _ImageService.SearchByTrackAndArtistAsync(TrackName, ArtistName);
-
-            if (SearchResponse?.ResponseData?.Hits?.Length > 0)
-            {
-                if (String.IsNullOrEmpty(SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL))
-                {
-                    this._Logger.LogDebug($"\tImage service returned a record, but the HeaderImageThumbnailURL property was null or empty; using the default image");
-                    return DEFAULT_ALBUM_ART_PATH;
-                }
-
-                this._Logger.LogDebug($"\tImage service returned the image to display");
-                return SearchResponse.ResponseData.Hits[0].Result.HeaderImageThumbnailURL;
-            }
-            else
-            {
-                this._Logger.LogDebug($"\tImage service did not return an image; using default image");
-                return DEFAULT_ALBUM_ART_PATH;
-            }
-        }
     }
 }

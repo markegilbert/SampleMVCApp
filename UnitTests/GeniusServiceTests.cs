@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SampleApp.Services;
 using NSubstitute;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace UnitTests
 {
@@ -18,21 +12,42 @@ namespace UnitTests
         private MockHttpMessageHandler _HttpMessageHandlerMock;
         private HttpClient? _HttpClientMock;
         private String? _ExpectedQueryString;
+        private ILogger<GeniusService> _LoggerMock;
+        private ArgumentNullException? _ArgumentNullException;
 
         [SetUp]
         public void SetUp()
         {
-            //GeniusSearchResponse Y = new GeniusSearchResponse() { Meta = new GeniusResponseMeta() { Status = 200 }, 
+            // I wanted to do this:
+            //      GeniusSearchResponse Y = new GeniusSearchResponse() { Meta = new GeniusResponseMeta() { Status = 200 }, 
             //                                                        ResponseData = new GeniusSearchResponseData() { Hits = new GeniusSearchResponseHit[0] } };
-            //var X = new MockHttpMessageHandler(JsonConvert.SerializeObject(Y), System.Net.HttpStatusCode.OK);
-            // The serializer isn't respecting the JsonPropertyName attributes.  See this SO post for more:
+            //      var X = new MockHttpMessageHandler(JsonConvert.SerializeObject(Y), System.Net.HttpStatusCode.OK);
+            // But the serializer isn't respecting the JsonPropertyName attributes, so I need to handcraft the test JSON.  See this SO post for more:
             //      https://stackoverflow.com/questions/70601659/is-there-a-way-to-serialize-json-property-name-in-newtonsoft
             this._HttpMessageHandlerMock = new MockHttpMessageHandler("{\"meta\":{\"status\":200},\"response\":{\"hits\":[]}}", System.Net.HttpStatusCode.OK);
 
             this._HttpClientMock = new HttpClient(this._HttpMessageHandlerMock);
             this._HttpClientMock.BaseAddress = new Uri("http://localhost");
 
-            this._Service = new GeniusService(this._HttpClientMock);
+            this._LoggerMock = Substitute.For<ILogger<GeniusService>>();
+
+            this._Service = new GeniusService(this._HttpClientMock, this._LoggerMock);
+
+            this._ArgumentNullException = null;
+        }
+
+
+        [Test]
+        public void InstantiateClass_HttpClientIsNull_ExceptionThrown()
+        {
+            this._ArgumentNullException = Assert.Throws<ArgumentNullException>(() => new GeniusService(null, this._LoggerMock));
+            Assert.That(this._ArgumentNullException.Message.Contains("'Client'"), "The exception didn't reference the correct parameter");
+        }
+        [Test]
+        public void InstantiateClass_LoggerIsNull_ExceptionThrown()
+        {
+            this._ArgumentNullException = Assert.Throws<ArgumentNullException>(() => new GeniusService(this._HttpClientMock, null));
+            Assert.That(this._ArgumentNullException.Message.Contains("'Logger'"), "The exception didn't reference the correct parameter");
         }
 
 
@@ -77,7 +92,7 @@ namespace UnitTests
         [Test]
         public async Task SearchByTrackAndArtistAsync_BothParametersAreValid_ValidSearchRequestGenerated()
         {
-            this._Service = new GeniusService(this._HttpClientMock);
+            this._Service = new GeniusService(this._HttpClientMock, this._LoggerMock);
             this._ExpectedQueryString = "?q=TrackA%20by%20ArtistB";
 
 
@@ -92,7 +107,7 @@ namespace UnitTests
         [Test]
         public async Task SearchByTrackAndArtistAsync_OnlyTrackSupplied_ValidSearchRequestGenerated()
         {
-            this._Service = new GeniusService(this._HttpClientMock);
+            this._Service = new GeniusService(this._HttpClientMock, this._LoggerMock);
             this._ExpectedQueryString = "?q=Track%20A";
 
 
@@ -107,7 +122,7 @@ namespace UnitTests
         [Test]
         public async Task SearchByTrackAndArtistAsync_OnlyArtistSupplied_ValidSearchRequestGenerated()
         {
-            this._Service = new GeniusService(this._HttpClientMock);
+            this._Service = new GeniusService(this._HttpClientMock, this._LoggerMock);
             this._ExpectedQueryString = "?q=Artist%20B";
 
 
@@ -122,7 +137,7 @@ namespace UnitTests
         [Test]
         public async Task SearchByTrackAndArtistAsync_NeitherParameterSupplied_RequestIsNotMade()
         {
-            this._Service = new GeniusService(this._HttpClientMock);
+            this._Service = new GeniusService(this._HttpClientMock, this._LoggerMock);
 
 
             var Result = await this._Service.SearchByTrackAndArtistAsync("", "");

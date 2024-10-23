@@ -33,6 +33,8 @@ namespace UnitTests
 
         private ArgumentNullException? _ArgumentNullException;
 
+        private ILogger<GeniusService> _LoggerMock;
+
 
         [SetUp]
         public void SetUp()
@@ -47,7 +49,8 @@ namespace UnitTests
             this._HttpMessageHandlerMock = Substitute.For<HttpMessageHandler>();
             this._HttpClientMock = new HttpClient(this._HttpMessageHandlerMock);
 
-            this._ImageService = new GeniusService(this._HttpClientMock);
+            this._LoggerMock = Substitute.For<ILogger<GeniusService>>();
+            this._ImageService = new GeniusService(this._HttpClientMock, this._LoggerMock);
 
             this._CacheMock = Substitute.For<IMemoryCache>();
             this._CacheManager = new CacheManager(this._CacheMock);

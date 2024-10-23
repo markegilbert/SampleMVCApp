@@ -25,9 +25,11 @@ namespace SampleApp
 
             _LogAs = NLog.LogManager.GetCurrentClassLogger();
 
+            #region Logging
             _LogAs.Info("");
             _LogAs.Info("************************");
             _LogAs.Info("Program starting");
+            #endregion
 
 
             // Load up the GeniusAPISettings so they can be injected as IOptions<GeniusAPISettings> objects.
@@ -35,7 +37,9 @@ namespace SampleApp
                 .BindConfiguration(GeniusAPISettings.SettingsName)
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
+            #region Logging
             _LogAs.Info("GeniusAPISettings loaded");
+            #endregion
 
 
             // This registers your API service class as a transient service with DI.  That means
