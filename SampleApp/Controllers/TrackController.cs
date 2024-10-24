@@ -52,7 +52,7 @@ namespace SampleApp.Controllers
                 #region Logging
                 this._Logger.LogDebug("\tNeither Track nor Artist were specified; returning the initial view");
                 #endregion
-                return View(new TrackSearchModel());
+                return View("Search", new TrackSearchModel());
             }
 
             #region Logging
@@ -77,7 +77,7 @@ namespace SampleApp.Controllers
                 #region Logging
                 this._Logger.LogDebug($"\tModelState was not valid.");
                 #endregion
-                return View(CriteriaAndResults); 
+                return View("Search", CriteriaAndResults); 
             }
             #region Logging
             this._Logger.LogDebug($"\tModelState was valid.");
@@ -115,7 +115,7 @@ namespace SampleApp.Controllers
             #region Logging
             this._Logger.LogDebug($"\tDisplaying page {CriteriaAndResults.Page} of {CriteriaAndResults.NumberOfPages} for Track '{CriteriaAndResults.TrackName}' and Artist '{CriteriaAndResults.ArtistName}'");
             #endregion
-            return View(CriteriaAndResults);
+            return View("Search", CriteriaAndResults);
         }
 
 
